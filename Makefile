@@ -141,7 +141,7 @@ kafka-create-topic: ## Создать топик
 
 kafka-send: ## Отправить тестовое сообщение
 	@echo "${GREEN}Sending test message...${NC}"
-	docker exec trending-kafka sh -c 'echo "{\"query\":\"iphone\",\"user_id\":\"user123\",\"timestamp\":'$$(date +%s%3N)'}" | kafka-console-producer --topic search-events --bootstrap-server localhost:9092 --property "parse.key=false"'
+	docker exec trending-kafka sh -c 'echo "{\"query\":\"iphone\",\"user_id\":\"user123\",\"timestamp\":'$$(date +%s)000'}" | kafka-console-producer --topic search-events --bootstrap-server localhost:9092 --property "parse.key=false"'
 kafka-consume: ## Потребить сообщения (для отладки)
 	@echo "${GREEN}Consuming messages...${NC}"
 	docker exec trending-kafka kafka-console-consumer \

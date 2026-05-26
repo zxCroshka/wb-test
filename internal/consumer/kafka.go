@@ -118,7 +118,11 @@ type consumerGroupHandler struct {
 
 func (h *consumerGroupHandler) Setup(session sarama.ConsumerGroupSession) error {
 	h.logger.Info("consumer group setup")
-	close(h.ready)
+	select {
+	case <-h.ready:
+	default:	
+		close(h.ready)
+	}
 	return nil
 }
 
