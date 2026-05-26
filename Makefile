@@ -85,12 +85,35 @@ docker-build: ## Пересобрать Docker образ
 	@echo "${GREEN}Rebuilding Docker image...${NC}"
 	cd deployments && docker compose build --no-cache app
 
-docker-restart: ## Перезапустить сервис
-	@echo "${GREEN}Restarting service...${NC}"
-	cd deployments && docker compose restart app
-
 docker-shell: ## Зайти в контейнер
 	docker exec -it trending-service sh
+
+# Добавьте в Makefile
+
+docker-restart: ## Полный перезапуск: очистка, пересборка, поднятие
+	@echo "${GREEN}Full restart: cleaning, rebuilding, starting...${NC}"
+	cd deployments && docker compose down -v
+	@echo "${GREEN}Removing old images...${NC}"
+	docker rmi deployments-app -f 2>/dev/null || true
+	@echo "${GREEN}Pruning Docker cache...${NC}"
+	docker system prune -f 2>/dev/null || true
+	@echo "${GREEN}Rebuilding image...${NC}"
+	cd deployments && docker compose build --no-cache
+	@echo "${GREEN}Starting services...${NC}"
+	cd deployments && docker compose up -d
+	@echo "${YELLOW}Waiting for services to be ready (15 sec)...${NC}"
+	sleep 15
+	@echo "${GREEN}Creating Kafka topic...${NC}"
+	docker exec trending-kafka kafka-topics --create \
+		--topic search-events \
+		--bootstrap-server localhost:9092 \
+		--partitions 1 \
+		--replication-factor 1 \
+		--if-not-exists 2>/dev/null || true
+	@echo "${GREEN}All done!${NC}"
+	@echo "${YELLOW}API: http://localhost:8080${NC}"
+	@echo "${YELLOW}Kafka UI: http://localhost:8081${NC}"
+	@echo "${YELLOW}Prometheus: http://localhost:9091${NC}"
 
 clean: ## Очистить
 	@echo "${GREEN}Cleaning...${NC}"

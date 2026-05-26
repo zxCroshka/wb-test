@@ -33,11 +33,11 @@ func main() {
 		Format:    cfg.Logging.Format,
 		AddSource: cfg.Logging.AddSource,
 	})
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	log.Info("starting trending search service", slog.String("config", *configPath))
-	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer shutdownCancel()
 	application := app.New(
-		shutdownCtx,
+		ctx,
 		log,
 		cfg.HTTP.Port,
 		cfg.Business.BucketSize,
@@ -52,9 +52,9 @@ func main() {
 		cfg.HTTP.IdleTimeout,
 	)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
+	
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer shutdownCancel()
 	if application.Consumer != nil {
 		if err := application.Consumer.Start(ctx); err != nil {
 			log.Error("failed to start kafka consumer", slog.String("error", err.Error()))
@@ -75,7 +75,9 @@ func main() {
 	<-quit
 
 	log.Info("shutting down gracefully...")
-	application.SaveStopList()
+	if err := application.SaveStopList(); err != nil{
+		log.Error("failed to save stoplist",slog.String("error",err.Error()))
+	}
 	if application.Consumer != nil {
 		application.Consumer.Stop()
 	}
@@ -86,6 +88,5 @@ func main() {
 		log.Error("HTTP server shutdown error", slog.String("error", err.Error()))
 	}
 
-	cancel()
 	log.Info("service stopped successfully")
 }
