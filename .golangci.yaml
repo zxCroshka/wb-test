@@ -1,0 +1,142 @@
+# .golangci.yml
+run:
+  timeout: 5m
+  tests: true
+  skip-dirs:
+    - bin
+    - deployments
+    - docs
+    - scripts
+
+output:
+  formats:
+    - format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  
+  govet:
+    check-shadowing: true
+    enable-all: true
+  
+  golint:
+    min-confidence: 0.8
+  
+  gocyclo:
+    min-complexity: 15
+  
+  maligned:
+    suggest-new: true
+  
+  dupl:
+    threshold: 100
+  
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+  
+  misspell:
+    locale: US
+    ignore-words:
+      - colour
+  
+  lll:
+    line-length: 140
+    tab-width: 4
+  
+  unused:
+    check-exported: false
+  
+  unparam:
+    check-exported: false
+  
+  nakedret:
+    max-func-lines: 30
+  
+  prealloc:
+    simple: true
+    range-loops: true
+    for-loops: false
+  
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - exitAfterDefer
+      - unnamedResult
+
+linters:
+  enable:
+    # Стандартные линтеры
+    - errcheck      # Проверка обработки ошибок
+    - gosimple      # Упрощение кода
+    - govet         # Подозрительные конструкции
+    - ineffassign   # Бесполезные присваивания
+    - staticcheck   # Статический анализ
+    - unused        # Неиспользуемый код
+    - typecheck     # Проверка типов
+    
+    # Дополнительные линтеры
+    - bodyclose     # Проверка закрытия HTTP body
+    - cyclop        # Сложность функций
+    - dupl          # Дублирование кода
+    - errorlint     # Обработка ошибок
+    - forbidigo     # Запрещённые паттерны
+    - goconst       # Повторяющиеся строки
+    - gocritic      # Расширенные проверки
+    - gofmt         # Форматирование
+    - goimports     # Импорты
+    - gosec         # Безопасность
+    - misspell      # Опечатки
+    - nakedret      # Голые return
+    - nilerr        # Обработка nil ошибок
+    - noctx         # Отсутствие контекста
+    - nolintlint    # Проверка nolint директив
+    - prealloc      # Предварительная аллокация
+    - revive        # Замена golint
+    - stylecheck    # Стиль кода
+    - unconvert     # Лишние конвертации
+    - unparam       # Неиспользуемые параметры
+    - whitespace    # Пробелы
+
+  disable:
+    - funlen        # Слишком длинные функции (можно включить позже)
+    - gocyclo       # Цикломатическая сложность
+    - lll           # Длинные строки
+    - wsl           # Пустые строки (слишком строгий)
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gosec
+        - noctx
+        - unparam
+    
+    - path: internal/api/dto\.go
+      linters:
+        - tagliatelle
+    
+    - path: internal/dto/event\.go
+      linters:
+        - tagliatelle
+  
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+severity:
+  default-severity: error
+  rules:
+    - linters:
+        - dupl
+        - goconst
+      severity: warning

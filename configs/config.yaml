@@ -1,0 +1,36 @@
+http:
+  port: 8080
+  read_timeout: 5s
+  write_timeout: 10s
+  idle_timeout: 120s
+
+metrics:
+  port: 8080
+  path: /metrics
+
+kafka:
+  brokers:
+    - kafka:9092
+  topic: search-events
+  group_id: trending-service
+
+business:
+  window_size: 5m
+  bucket_size: 1s
+  top_cache_ttl: 1s
+  top_max_size: 100
+
+anomaly_detector:
+  requests_per_second: 100
+  burst: 100
+  key_type: user_query
+
+stoplist:
+  initial_words:
+    - spam
+  persist_file: ./data/stoplist.txt
+
+logging:
+  level: info
+  format: json
+  add_source: false
