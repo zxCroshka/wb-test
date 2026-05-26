@@ -140,8 +140,6 @@ make kafka-create-topic
 # 4. Отправить тестовое сообщение
 make kafka-send
 
-# 5. Получить топ
-curl http://localhost:8080/top?limit=10
 ```
 
 ### Доступные сервисы
